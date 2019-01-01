@@ -25,7 +25,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
             - name: SELF_URL
-              value: {{ required "github.token is required if github configuration is specified." .Values.turtl.selfUrl | quote }}
+              value: {{ required "turtl.selfUrl is required if github configuration is specified." .Values.turtl.selfUrl | quote }}
             - name: DBURL
               valueFrom:
                 secretKeyRef:
