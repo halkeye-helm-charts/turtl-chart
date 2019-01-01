@@ -1,0 +1,78 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "turtl.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "turtl.name" . }}
+    helm.sh/chart: {{ include "turtl.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "turtl.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "turtl.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            - name: GID
+              value: {{ .Values.turtl.gid | quote }}
+            - name: UID
+              value: {{ .Values.turtl.uid | quote }}
+            - name: SERVER_MODE
+              value: {{ .Values.turtl.server_mode | quote }}
+            - name: PGADMIN_SETUP_EMAIL
+              value: {{ .Values.turtl.setup_email }}
+            - name: PGADMIN_PORT
+              value: {{ .Values.service.port | quote }}
+            - name: PGADMIN_SETUP_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ template "turtl.fullname" . }}
+                  key: setup_password
+          ports:
+            - name: http
+              containerPort: 5050
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /misc/ping
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /misc/ping
+              port: http
+          volumeMounts:
+          - name: turtl-data
+            mountPath: /data
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+      - name: turtl-data
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ template "turtl.fullname" . }}
+      {{- else }}
+        emptyDir: {}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
