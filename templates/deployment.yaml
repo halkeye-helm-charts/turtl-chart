@@ -24,40 +24,36 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           env:
-            - name: GID
-              value: {{ .Values.turtl.gid | quote }}
-            - name: UID
-              value: {{ .Values.turtl.uid | quote }}
-            - name: SERVER_MODE
-              value: {{ .Values.turtl.server_mode | quote }}
-            - name: PGADMIN_SETUP_EMAIL
-              value: {{ .Values.turtl.setup_email }}
-            - name: PGADMIN_PORT
-              value: {{ .Values.service.port | quote }}
-            - name: PGADMIN_SETUP_PASSWORD
+            - name: SELF_URL
+              value: {{ required "github.token is required if github configuration is specified." .Values.turtl.selfUrl | quote }}
+            - name: DBURL
               valueFrom:
                 secretKeyRef:
                   name: {{ template "turtl.fullname" . }}
-                  key: setup_password
+                  key: dburl
           ports:
             - name: http
               containerPort: 5050
               protocol: TCP
           livenessProbe:
             httpGet:
-              path: /misc/ping
+              path: /
               port: http
           readinessProbe:
             httpGet:
-              path: /misc/ping
+              path: /
               port: http
           volumeMounts:
-          - name: turtl-data
-            mountPath: /data
+          - name: turtl-plugins
+            mountPath: /usr/src/app/plugins
+          - name: turtl-uploads
+            mountPath: /usr/src/app/public/uploads
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       volumes:
-      - name: turtl-data
+      - name: turtl-plugins
+        emptyDir: {}
+      - name: turtl-uploads
       {{- if .Values.persistence.enabled }}
         persistentVolumeClaim:
           claimName: {{ template "turtl.fullname" . }}

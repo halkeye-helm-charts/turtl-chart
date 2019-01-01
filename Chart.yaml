@@ -1,12 +1,12 @@
 apiVersion: v1
-appVersion: "3.6"
-description: pgAdmin is the most popular and feature rich Open Source administration and development platform for PostgreSQL, the most advanced Open Source database in the world.
+appVersion: "0.7"
+description: The secure, collaborative notebook - Totally private personal database and note taking app.
 name: turtl
-version: 0.1.1
+version: 0.1.0
 keywords:
   - turtl
   - postgres
-home: https://www.turtl.org/
+home: https://turtlapp.com/
 maintainers:
   - name: Gavin Mogan
     email: helm@gavinmogan.com
