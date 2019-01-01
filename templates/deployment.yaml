@@ -33,7 +33,7 @@ spec:
                   key: dburl
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: 8181
               protocol: TCP
           livenessProbe:
             httpGet:
