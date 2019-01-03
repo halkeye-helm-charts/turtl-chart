@@ -26,6 +26,8 @@ spec:
           env:
             - name: SELF_URL
               value: {{ required "turtl.selfUrl is required if github configuration is specified." .Values.turtl.selfUrl | quote }}
+            - name: LOGLEVEL
+              value: {{ .Values.turtl.loglevel | quote }}
             - name: DBURL
               valueFrom:
                 secretKeyRef:
